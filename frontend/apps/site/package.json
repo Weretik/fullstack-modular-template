@@ -1,0 +1,27 @@
+{
+  "name": "site",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "sourceRoot": "apps/site/src",
+    "targets": {
+      "typecheck": {
+        "command": "tsc -p apps/site/tsconfig.json --noEmit",
+        "options": {
+          "cwd": "{workspaceRoot}"
+        },
+        "cache": true,
+        "inputs": [
+          "default",
+          "^default"
+        ]
+      }
+    }
+  },
+  "dependencies": {
+    "next": "~16.4.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@template/api-client": "*"
+  }
+}

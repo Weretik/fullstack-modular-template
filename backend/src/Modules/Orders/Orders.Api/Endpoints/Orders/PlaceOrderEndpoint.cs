@@ -24,7 +24,7 @@ internal static class PlaceOrderEndpoint
                     idempotencyKey ?? string.Empty,
                     request.CustomerName,
                     request.Phone,
-                    [.. request.Lines.Select(l => new PlaceOrderLine(l.ProductId, l.Quantity))]), ct))
+                    [.. (request.Lines ?? []).Select(l => new PlaceOrderLine(l.ProductId, l.Quantity))]), ct))
                     .ToHttpResult(http))
             .WithName("placeOrder")
             .WithSummary("Place an order. Send one Idempotency-Key per checkout and repeat it on retry.")
