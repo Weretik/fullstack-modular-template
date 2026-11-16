@@ -1,0 +1,67 @@
+name: Frontend
+
+on:
+  pull_request:
+    paths:
+      - "frontend/**"
+      - "backend/docs/contracts/openapi.json"
+      - ".github/workflows/frontend.yml"
+  push:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      - "backend/docs/contracts/openapi.json"
+      - ".github/workflows/frontend.yml"
+
+concurrency:
+  group: frontend-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: frontend
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install
+        run: |
+          npm install --global npm@11.21.2
+          npm ci
+
+      - name: Generated API client matches the backend contract
+        run: npm run contracts:check
+
+      - name: Folder structure rules
+        run: npm run architecture:structure
+
+      - name: Code style
+        run: npm run format:check
+
+      - name: Lint, typecheck, test and build affected projects
+        env:
+          NX_NO_CLOUD: true
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            base="origin/$BASE_REF"
+          elif [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ]; then
+            base="$BEFORE"
+          else
+            npx nx run-many -t lint typecheck test build
+            exit 0
+          fi
+          npx nx affected -t lint typecheck test build --base="$base" --head=HEAD

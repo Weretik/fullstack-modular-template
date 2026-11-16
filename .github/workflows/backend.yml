@@ -1,0 +1,48 @@
+name: Backend
+
+on:
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend.yml"
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend.yml"
+
+concurrency:
+  group: backend-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: backend
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: backend/global.json
+
+      - name: Restore
+        run: dotnet restore ModularTemplate.slnx
+
+      - name: Build (also regenerates the OpenAPI document)
+        run: dotnet build ModularTemplate.slnx --no-restore --configuration Release
+
+      - name: OpenAPI document matches the code
+        run: git diff --exit-code -- docs/contracts/openapi.json
+
+      - name: Unit tests
+        run: dotnet test tests/UnitTests --no-build --configuration Release
+
+      - name: Architecture tests
+        run: dotnet test tests/ArchitectureTests --no-build --configuration Release
+
+      - name: Integration tests (PostgreSQL in Testcontainers)
+        run: dotnet test tests/IntegrationTests --no-build --configuration Release
