@@ -27,6 +27,7 @@ The example is a small stationery shop:
 backend/     .NET 10 modular monolith, PostgreSQL, tests, OpenAPI document generated from the code
 frontend/    Nx workspace: Next.js storefront (apps/site), React admin (apps/admin), typed API client
 docs/        Screenshots used by this README
+AGENTS.md    Entry point for AI agents (CLAUDE.md points to it); .claude/ holds the agent hooks
 .github/     Two CI workflows, each runs only when its half of the repository changes; weekly Dependabot updates
 ```
 
