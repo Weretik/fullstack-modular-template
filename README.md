@@ -1,5 +1,11 @@
 # Fullstack Modular Template
 
+[![Backend](https://github.com/Weretik/fullstack-modular-template/actions/workflows/backend.yml/badge.svg)](https://github.com/Weretik/fullstack-modular-template/actions/workflows/backend.yml)
+[![Frontend](https://github.com/Weretik/fullstack-modular-template/actions/workflows/frontend.yml/badge.svg)](https://github.com/Weretik/fullstack-modular-template/actions/workflows/frontend.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+**Stack:** .NET 10 · ASP.NET Core · EF Core · PostgreSQL · React · Next.js · TypeScript · Nx · Material UI
+
 A starter for a full-stack product built as a **modular monolith**: a .NET 10 API with PostgreSQL, a
 search-engine-friendly Next.js storefront, and a React admin app. It shows the structure I use for real projects in a
 small example domain, so a new project starts from working code and clear rules instead of an empty folder.
@@ -93,6 +99,11 @@ move, not a rewrite:
 2. Do the same for `frontend/` with `frontend.yml`.
 3. In the frontend, point `contracts:generate` at the backend's published `openapi.json` (for example the raw file
    from the backend's main branch) instead of `../backend/docs/contracts/openapi.json`.
+
+## Author
+
+Built by [Vitaliy Tsiupin](https://www.linkedin.com/in/vitaliythupin/), full-stack .NET + React developer.
+The same structure runs in production systems I build for clients.
 
 ## License
 
