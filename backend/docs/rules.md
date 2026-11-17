@@ -44,6 +44,8 @@ fail the build when broken.
 - Every endpoint has a unique camelCase `WithName`, a `WithSummary`, and `Produces...` for every response it can
   give. **(tested on the generated OpenAPI document)**
 - Errors are RFC 9457 problem responses with `code` and, for validation, `errors` by field.
+- An anonymous endpoint that writes, and every sign-in, opts into a rate limit policy
+  (`RequireRateLimiting(RateLimitPolicies.PublicWrite)`) and lists `429` in its `Produces...`.
 - The OpenAPI document is generated on build and committed; CI fails when it differs from the code. Never edit it by
   hand.
 

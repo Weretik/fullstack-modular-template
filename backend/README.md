@@ -54,6 +54,7 @@ In Development the API applies migrations and seeds a staff account and a sample
 | `Identity:SeedAdmin:Email`, `:Password` | The first staff account, created when it does not exist. |
 | `Cors:Origins` | Browser origins allowed to call the API with credentials. |
 | `OutboxTick:Key` | Shared secret for `POST /internal/outbox/tick`; empty disables the endpoint. |
+| `RateLimiting:PublicWrite`, `:SignIn` | `PermitLimit` and `WindowSeconds` per client address for anonymous writes and sign-in ([ADR 0012](docs/decisions/0012-rate-limits-on-anonymous-writes.md)). |
 
 Keep real values in user secrets or environment variables (`ConnectionStrings__Database=...`), never in the
 repository.

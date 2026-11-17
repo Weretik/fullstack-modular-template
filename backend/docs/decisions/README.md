@@ -15,6 +15,7 @@ Architecture decision records: why the backend is built the way it is.
 | 0009 | [Cookie session for the admin app](0009-cookie-session-for-staff.md) |
 | 0010 | [Source-generated Mediator with a validation pipeline](0010-mediator-pipeline.md) |
 | 0011 | [Folder rules enforced by tests](0011-folder-rules-enforced-by-tests.md) |
+| 0012 | [Rate limits on anonymous writes and sign-in](0012-rate-limits-on-anonymous-writes.md) |
 
 ## Decisions that must have a record
 

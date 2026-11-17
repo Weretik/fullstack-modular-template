@@ -44,6 +44,9 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         builder.UseSetting("Identity:SeedAdmin:Email", AdminEmail);
         builder.UseSetting("Identity:SeedAdmin:Password", AdminPassword);
         builder.UseSetting("OutboxTick:Key", TickKey);
+        // The shared host runs many requests from one address; RateLimitingApiTests checks the limits on its own host.
+        builder.UseSetting("RateLimiting:PublicWrite:PermitLimit", "1000");
+        builder.UseSetting("RateLimiting:SignIn:PermitLimit", "1000");
     }
 
     async Task IAsyncLifetime.DisposeAsync()

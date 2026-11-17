@@ -1,4 +1,5 @@
 using BuildingBlocks.Api.Problems;
+using BuildingBlocks.Api.RateLimiting;
 using Identity.Application.Features.Sessions.Commands.SignIn;
 using Identity.Application.Features.Sessions.Queries.GetCurrentUser;
 using Mediator;
@@ -16,10 +17,12 @@ internal static class SignInEndpoint
         group.MapPost("/sign-in", async (Request request, ISender sender, HttpContext http, CancellationToken ct) =>
                 (await sender.Send(new SignInCommand(request.Email, request.Password), ct)).ToHttpResult(http))
             .AllowAnonymous()
+            .RequireRateLimiting(RateLimitPolicies.SignIn)
             .WithName("signIn")
             .WithSummary("Sign in with e-mail and password; sets the session cookie.")
             .Produces<CurrentUserResponse>()
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status401Unauthorized)
-            .ProducesProblem(StatusCodes.Status403Forbidden);
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
 }
