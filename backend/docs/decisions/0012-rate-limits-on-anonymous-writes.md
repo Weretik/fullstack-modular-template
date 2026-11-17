@@ -24,7 +24,7 @@ Each policy is a fixed window partitioned by the client IP address, with no queu
 
 - One client cannot flood orders or guess passwords quickly; the limits can be tuned per environment without code.
 - Behind a reverse proxy the API must read the client address from `X-Forwarded-For`, or every request shares the
-  proxy's address and one limit (see "Deploy behind a reverse proxy" in the backend README).
+  proxy's address and one limit (see [Deploy behind a reverse proxy](../../README.md#deploy-behind-a-reverse-proxy)).
 - Counters live in memory, so with several API instances each instance counts on its own. When that matters, move
   the limits to the gateway or to a distributed store and write a new record.
 - New anonymous writes must opt into `public-write`, and list `429` in their `Produces...` metadata.

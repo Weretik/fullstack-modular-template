@@ -89,6 +89,13 @@ in `backend/src/Host/Host.Api/appsettings.Development.json`; change them before 
    client.
 4. Write a decision record for every lasting choice you make on the way (a new module, an external system, hosting).
 
+## Deploying
+
+The API runs behind a reverse proxy or load balancer that ends TLS. Before the first deploy read
+[Deploy behind a reverse proxy](backend/README.md#deploy-behind-a-reverse-proxy): forwarded headers, HTTPS and HSTS,
+cookies and CORS, migrations as a separate step, secrets, health checks and rate limits. The frontend build settings
+are in [frontend/README.md](frontend/README.md#environment-variables).
+
 ## Splitting into two repositories
 
 Nothing outside `backend/` refers to the frontend and nothing in `frontend/` builds the backend, so the split is a

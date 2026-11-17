@@ -12,6 +12,7 @@ internal static class PlatformRegistration
         services.AddSingleton(TimeProvider.System);
         services.AddApiProblems();
         services.AddMediatorPipeline();
+        services.AddReverseProxySupport(configuration);
         services.AddCorsForApps(configuration);
         services.AddApiRateLimiting(configuration);
         services.AddApiDocumentation();

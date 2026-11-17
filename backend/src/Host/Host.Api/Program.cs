@@ -14,6 +14,7 @@ builder.Services
 
 var app = builder.Build();
 
+app.UseReverseProxySupport();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseCors(CorsSetup.PolicyName);

@@ -55,6 +55,7 @@ In Development the API applies migrations and seeds a staff account and a sample
 | `Cors:Origins` | Browser origins allowed to call the API with credentials. |
 | `OutboxTick:Key` | Shared secret for `POST /internal/outbox/tick`; empty disables the endpoint. |
 | `RateLimiting:PublicWrite`, `:SignIn` | `PermitLimit` and `WindowSeconds` per client address for anonymous writes and sign-in ([ADR 0012](docs/decisions/0012-rate-limits-on-anonymous-writes.md)). |
+| `ForwardedHeaders:Enabled`, `:KnownProxies`, `:KnownNetworks` | Read the client address and scheme from a trusted reverse proxy (see [Deploy behind a reverse proxy](#deploy-behind-a-reverse-proxy)). |
 
 Keep real values in user secrets or environment variables (`ConnectionStrings__Database=...`), never in the
 repository.
@@ -143,6 +144,36 @@ Business rules return `Result` or `Result<T>` with an `Error(code, message, type
 type into a status (`Validation` 400, `Unauthorized` 401, `Forbidden` 403, `NotFound` 404, `Conflict` 409) and a
 problem response with `code` and, for validation, `errors` per field. Exceptions are for bugs and outages only;
 `GlobalExceptionHandler` logs them and answers 500 without details.
+
+## Deploy behind a reverse proxy
+
+In production the API runs behind something that ends TLS: nginx, Traefik, a cloud load balancer, or a platform such
+as Azure App Service or Cloud Run. The API itself speaks plain HTTP inside that network.
+
+1. **Forwarded headers.** Set `ForwardedHeaders__Enabled=true` and list the proxy in `ForwardedHeaders__KnownProxies__0`
+   (an address) or `ForwardedHeaders__KnownNetworks__0` (a range such as `10.0.0.0/8`). The API then takes the client
+   address from `X-Forwarded-For` and the scheme from `X-Forwarded-Proto`. Without this every request seems to come
+   from the proxy, so all visitors share one rate limit, and the API believes requests are plain HTTP. Trust only
+   your proxy: if the API is also reachable directly, anyone could send a fake `X-Forwarded-For`. On a platform
+   whose proxy address is not fixed, trust its documented range, and `0.0.0.0/0` only when the API cannot be
+   reached except through the proxy.
+2. **HTTPS and HSTS.** The proxy redirects HTTP to HTTPS. Outside Development the API adds
+   `Strict-Transport-Security` to HTTPS answers, so browsers stop trying plain HTTP.
+3. **Cookies and CORS.** The staff session cookie is `Secure` and `SameSite=Strict`, so the admin app and the API must
+   be served over HTTPS on one site, for example `admin.example.com` and `api.example.com`
+   ([ADR 0009](docs/decisions/0009-cookie-session-for-staff.md)). Put both app origins in `Cors__Origins__0`, `__1`.
+4. **Database.** Run migrations as a separate step before the new version starts (for example
+   `dotnet ef migrations bundle` in CI, then run the bundle), keep `Database:InitializeOnStartup` off, and keep
+   each migration compatible with the previous release.
+5. **Secrets.** `ConnectionStrings__Database`, `Identity__SeedAdmin__Password` and `OutboxTick__Key` come from the
+   platform's secret store or environment variables, never from `appsettings.json`.
+6. **Scheduler and health.** Point the platform's health check at `GET /health`, and a scheduler at
+   `POST /internal/outbox/tick` with the `X-Scheduler-Key` header (see above).
+7. **Rate limits.** The limits count in memory per instance. With several instances, lower them per instance or move
+   them to the gateway ([ADR 0012](docs/decisions/0012-rate-limits-on-anonymous-writes.md)).
+
+The frontend builds bake their API origins in at build time; see
+[frontend/README.md](../frontend/README.md#environment-variables).
 
 ## Extracting a module into a service
 

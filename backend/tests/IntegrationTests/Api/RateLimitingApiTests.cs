@@ -44,4 +44,34 @@ public sealed class RateLimitingApiTests(ApiFactory api)
 
         Assert.All(answers, r => Assert.Equal(HttpStatusCode.OK, r.StatusCode));
     }
+
+    [SkippableFact]
+    public async Task Behind_ATrustedProxy_EachForwardedClientAddress_HasItsOwnLimit()
+    {
+        Skip.If(api.Unavailable is not null, api.Unavailable);
+        using var limited = api.WithWebHostBuilder(builder => builder
+            .UseSetting("ForwardedHeaders:Enabled", "true")
+            .UseSetting("ForwardedHeaders:KnownNetworks:0", "0.0.0.0/0")
+            .UseSetting("ForwardedHeaders:KnownNetworks:1", "::/0")
+            .UseSetting("RateLimiting:SignIn:PermitLimit", "1"));
+        using var client = limited.CreateClient(new() { BaseAddress = new Uri("https://localhost") });
+
+        Task<HttpResponseMessage> SignInFrom(string address)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, "/api/session/sign-in")
+            {
+                Content = JsonContent.Create(new { email = ApiFactory.AdminEmail, password = "wrong-password" }),
+            };
+            request.Headers.Add("X-Forwarded-For", address);
+            return client.SendAsync(request);
+        }
+
+        var first = await SignInFrom("203.0.113.10");
+        var other = await SignInFrom("203.0.113.20");
+        var firstAgain = await SignInFrom("203.0.113.10");
+
+        Assert.Equal(HttpStatusCode.Unauthorized, first.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, other.StatusCode);
+        Assert.Equal(HttpStatusCode.TooManyRequests, firstAgain.StatusCode);
+    }
 }
