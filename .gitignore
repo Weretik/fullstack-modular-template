@@ -25,3 +25,8 @@ Thumbs.db
 .env
 .env.local
 *.local.json
+
+# Agent working files (never commit)
+usage.json
+tmp*.json
+output/
