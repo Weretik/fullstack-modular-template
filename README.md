@@ -89,6 +89,15 @@ in `backend/src/Host/Host.Api/appsettings.Development.json`; change them before 
    client.
 4. Write a decision record for every lasting choice you make on the way (a new module, an external system, hosting).
 
+## Branch names
+
+Every feature or fix is a new branch from `main` named by Conventional Branch: `<type>/<short-kebab-description>`,
+in English, 3 to 6 words in the description, with the type `feat`, `fix`, `hotfix`, `refactor`, `perf`, `docs`,
+`test` or `chore`, for example `feat/order-history-export` or `fix/login-redirect-loop`. A feature that spans several
+repositories uses the same branch name in each. No random suffixes, hashes or dates; `dependabot/*` and `renovate/*`
+branches are allowed. The workflow [Branch name](.github/workflows/branch-name.yml) fails a pull request whose branch
+breaks the rule; mark its check `branch name` as required in the repository rules so such a branch cannot merge.
+
 ## Deploying
 
 The API runs behind a reverse proxy or load balancer that ends TLS. Before the first deploy read
